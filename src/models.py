@@ -8,26 +8,42 @@ from eralchemy import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base):
+    __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    username = Column(String(100), nullable=False, unique=True, index=True)
+    name = Column(String(100), nullable=False)
+    email = Column(String(100), nullable=False, unique=True)
+    password = Column(String(999), nullable=False)
+    favorites = relationship("Favs")
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Planets(Base):
+    __tablename__='planets'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    name = Column(String(100), nullable=False, unique=True, index=True)
+    rotation_period = Column(Integer, nullable=False)
+    gravity = Column(String(100), nullable=False)
+    terrain = Column(String(100), nullable=False)
+    population = Column(Integer, nullable=False)
+    inhabitants = relationship("Characters")
 
-    def to_dict(self):
-        return {}
+class Characters(Base):
+    __tablename__= 'characters'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250), nullable=False, unique=True)
+    height = Column(Integer, nullable=False)
+    mass = Column(Integer, nullable=False)
+    homeworld = Column(String, ForeignKey('planets.id'))
+
+class Favs(Base):
+    __tablename__= 'favorites'
+    user_id = Column(Integer, ForeignKey('user.id'), primary_key=True)
+    characters = Column(Integer, ForeignKey('characters.id'), primary_key=True)
+    planets = Column(Integer, ForeignKey('planets.id'), primary_key=True)
+    user = relationship(User)
+
+
+
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
